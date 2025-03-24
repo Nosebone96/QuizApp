@@ -74,8 +74,14 @@ jobs:
       - name: Build APK
         run: flet build apk --project-name "Quiz App" --package-name "com.yourname.quizapp"
         
+      - name: Debug - List build directory
+        run: |
+          echo "Listing build directory structure:"
+          find build -type f -name "*.apk" | sort
+          
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
           name: app-release
-          path: build/android/app/outputs/flutter-apk/app-release.apk
+          path: build/android/app/outputs/flutter-apk/*.apk
+          if-no-files-found: warn
