@@ -79,9 +79,24 @@ jobs:
           echo "Listing build directory structure:"
           find build -type f -name "*.apk" | sort
           
-      - name: Upload APK
-        uses: actions/upload-artifact@v3
+      # Use a different approach to upload the artifact
+      - name: Upload APK using GitHub CLI
+        run: |
+          APK_PATH=$(find build -type f -name "*.apk" | head -n 1)
+          if [ -z "$APK_PATH" ]; then
+            echo "No APK file found!"
+            exit 1
+          else
+            echo "Found APK at $APK_PATH"
+            mkdir -p ./artifacts
+            cp "$APK_PATH" ./artifacts/app-release.apk
+            echo "APK copied to artifacts directory"
+          fi
+          
+      # Use a more stable version of upload-artifact
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
         with:
           name: app-release
-          path: build/android/app/outputs/flutter-apk/*.apk
-          if-no-files-found: warn
+          path: ./artifacts/app-release.apk
+          if-no-files-found: error
